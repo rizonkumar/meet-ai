@@ -143,7 +143,6 @@ export const SignInView = () => {
                   type="submit"
                   className="w-full"
                   disabled={isEmailSignInLoading || socialLoginLoading !== null}
-                  onClick={() => handleSocialLogin("google")}
                 >
                   {isEmailSignInLoading ? (
                     <Loader2 className="size-4 animate-spin" />
@@ -161,6 +160,7 @@ export const SignInView = () => {
                     variant="outline"
                     type="button"
                     className="w-full"
+                    onClick={() => handleSocialLogin("google")}
                     disabled={
                       isEmailSignInLoading || socialLoginLoading !== null
                     }
@@ -175,10 +175,10 @@ export const SignInView = () => {
                     variant="outline"
                     type="button"
                     className="w-full"
+                    onClick={() => handleSocialLogin("github")}
                     disabled={
                       isEmailSignInLoading || socialLoginLoading !== null
                     }
-                    onClick={() => handleSocialLogin("github")}
                   >
                     {socialLoginLoading === "github" ? (
                       <Loader2 className="size-4 animate-spin" />
