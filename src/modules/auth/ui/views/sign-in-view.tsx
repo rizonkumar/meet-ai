@@ -26,10 +26,14 @@ const formSchema = z.object({
   password: z.string().min(1, { message: "Password is required" }),
 });
 
+type SocialLoginType = "google" | "github" | null;
+
 export const SignInView = () => {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isEmailSignInLoading, setIsEmailSignInLoading] = useState(false);
+  const [socialLoginLoading, setSocialLoginLoading] =
+    useState<SocialLoginType>(null);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -41,7 +45,7 @@ export const SignInView = () => {
 
   const onSubmit = (data: z.infer<typeof formSchema>) => {
     setError(null);
-    setIsLoading(true);
+    setIsEmailSignInLoading(true);
     authClient.signIn.email(
       {
         email: data.email,
@@ -49,15 +53,32 @@ export const SignInView = () => {
       },
       {
         onSuccess: () => {
-          setIsLoading(false);
+          setIsEmailSignInLoading(false);
           router.push("/");
         },
         onError: ({ error }) => {
           setError(error.message);
-          setIsLoading(false);
+          setIsEmailSignInLoading(false);
         },
       }
     );
+  };
+
+  const handleSocialLogin = async (provider: SocialLoginType) => {
+    if (!provider) return;
+
+    setError(null);
+    setSocialLoginLoading(provider);
+
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+      console.log(`Signing in with ${provider}...`);
+      router.push("/");
+    } catch (err: any) {
+      setError(err.message || `Failed to sign in with ${provider}`);
+    } finally {
+      setSocialLoginLoading(null);
+    }
   };
 
   return (
@@ -118,8 +139,13 @@ export const SignInView = () => {
                     <AlertDescription>{error}</AlertDescription>
                   </Alert>
                 )}
-                <Button type="submit" className="w-full" disabled={isLoading}>
-                  {isLoading ? (
+                <Button
+                  type="submit"
+                  className="w-full"
+                  disabled={isEmailSignInLoading || socialLoginLoading !== null}
+                  onClick={() => handleSocialLogin("google")}
+                >
+                  {isEmailSignInLoading ? (
                     <Loader2 className="size-4 animate-spin" />
                   ) : (
                     "Sign in"
@@ -135,9 +161,11 @@ export const SignInView = () => {
                     variant="outline"
                     type="button"
                     className="w-full"
-                    disabled={isLoading}
+                    disabled={
+                      isEmailSignInLoading || socialLoginLoading !== null
+                    }
                   >
-                    {isLoading ? (
+                    {socialLoginLoading === "google" ? (
                       <Loader2 className="size-4 animate-spin" />
                     ) : (
                       "Google"
@@ -147,9 +175,12 @@ export const SignInView = () => {
                     variant="outline"
                     type="button"
                     className="w-full"
-                    disabled={isLoading}
+                    disabled={
+                      isEmailSignInLoading || socialLoginLoading !== null
+                    }
+                    onClick={() => handleSocialLogin("github")}
                   >
-                    {isLoading ? (
+                    {socialLoginLoading === "github" ? (
                       <Loader2 className="size-4 animate-spin" />
                     ) : (
                       "GitHub"
