@@ -19,7 +19,6 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { useState } from "react";
 import { authClient } from "@/lib/auth-client";
-import { useRouter } from "next/navigation";
 
 const formSchema = z.object({
   email: z.string().email(),
@@ -29,7 +28,6 @@ const formSchema = z.object({
 type SocialLoginType = "google" | "github" | null;
 
 export const SignInView = () => {
-  const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [isEmailSignInLoading, setIsEmailSignInLoading] = useState(false);
   const [socialLoginLoading, setSocialLoginLoading] =
@@ -50,11 +48,11 @@ export const SignInView = () => {
       {
         email: data.email,
         password: data.password,
+        callbackURL: "/",
       },
       {
         onSuccess: () => {
           setIsEmailSignInLoading(false);
-          router.push("/");
         },
         onError: ({ error }) => {
           setError(error.message);
@@ -69,8 +67,12 @@ export const SignInView = () => {
     authClient.signIn.social(
       {
         provider: provider,
+        callbackURL: "/",
       },
       {
+        onSuccess: () => {
+          setSocialLoginLoading(null);
+        },
         onError: ({ error }) => {
           setError(error.message);
           setSocialLoginLoading(null);

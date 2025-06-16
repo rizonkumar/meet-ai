@@ -62,11 +62,11 @@ export const SignUpView = () => {
         name: data.name,
         email: data.email,
         password: data.password,
+        callbackURL: "/",
       },
       {
         onSuccess: () => {
           setIsEmailSignUpLoading(false);
-          router.push("/");
         },
         onError: ({ error }) => {
           setError(error.message);
@@ -82,8 +82,12 @@ export const SignUpView = () => {
     authClient.signIn.social(
       {
         provider: provider,
+        callbackURL: "/",
       },
       {
+        onSuccess: () => {
+          setSocialLoginLoading(null);
+        },
         onError: ({ error }) => {
           setError(error.message);
           setSocialLoginLoading(null);
