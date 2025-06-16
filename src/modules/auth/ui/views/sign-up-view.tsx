@@ -35,10 +35,14 @@ const formSchema = z
     path: ["confirmPassword"],
   });
 
+type SocialLoginType = "google" | "github" | null;
+
 export const SignUpView = () => {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isEmailSignUpLoading, setIsEmailSignUpLoading] = useState(false);
+  const [socialLoginLoading, setSocialLoginLoading] =
+    useState<SocialLoginType>(null);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -52,7 +56,7 @@ export const SignUpView = () => {
 
   const onSubmit = (data: z.infer<typeof formSchema>) => {
     setError(null);
-    setIsLoading(true);
+    setIsEmailSignUpLoading(true);
     authClient.signUp.email(
       {
         name: data.name,
@@ -61,12 +65,28 @@ export const SignUpView = () => {
       },
       {
         onSuccess: () => {
-          setIsLoading(false);
+          setIsEmailSignUpLoading(false);
           router.push("/");
         },
         onError: ({ error }) => {
           setError(error.message);
-          setIsLoading(false);
+          setIsEmailSignUpLoading(false);
+        },
+      }
+    );
+  };
+
+  const handleSocialSignIn = (provider: "google" | "github") => {
+    setError(null);
+    setSocialLoginLoading(provider);
+    authClient.signIn.social(
+      {
+        provider: provider,
+      },
+      {
+        onError: ({ error }) => {
+          setError(error.message);
+          setSocialLoginLoading(null);
         },
       }
     );
@@ -168,8 +188,12 @@ export const SignUpView = () => {
                     <AlertDescription>{error}</AlertDescription>
                   </Alert>
                 )}
-                <Button type="submit" className="w-full" disabled={isLoading}>
-                  {isLoading ? (
+                <Button
+                  type="submit"
+                  className="w-full"
+                  disabled={isEmailSignUpLoading || socialLoginLoading !== null}
+                >
+                  {isEmailSignUpLoading ? (
                     <Loader2 className="size-4 animate-spin" />
                   ) : (
                     "Sign up"
@@ -185,21 +209,12 @@ export const SignUpView = () => {
                     variant="outline"
                     type="button"
                     className="w-full"
-                    disabled={isLoading}
-                    onClick={() =>
-                      authClient.signIn.social(
-                        {
-                          provider: "google",
-                        },
-                        {
-                          onError: ({ error }) => {
-                            setError(error.message);
-                          },
-                        }
-                      )
+                    disabled={
+                      isEmailSignUpLoading || socialLoginLoading !== null
                     }
+                    onClick={() => handleSocialSignIn("google")}
                   >
-                    {isLoading ? (
+                    {socialLoginLoading === "google" ? (
                       <Loader2 className="size-4 animate-spin" />
                     ) : (
                       "Google"
@@ -209,21 +224,12 @@ export const SignUpView = () => {
                     variant="outline"
                     type="button"
                     className="w-full"
-                    disabled={isLoading}
-                    onClick={() =>
-                      authClient.signIn.social(
-                        {
-                          provider: "github",
-                        },
-                        {
-                          onError: ({ error }) => {
-                            setError(error.message);
-                          },
-                        }
-                      )
+                    disabled={
+                      isEmailSignUpLoading || socialLoginLoading !== null
                     }
+                    onClick={() => handleSocialSignIn("github")}
                   >
-                    {isLoading ? (
+                    {socialLoginLoading === "github" ? (
                       <Loader2 className="size-4 animate-spin" />
                     ) : (
                       "GitHub"
@@ -236,7 +242,7 @@ export const SignUpView = () => {
                     href="/sign-in"
                     className="underline underline-offset-4"
                   >
-                    Sign up
+                    Sign in
                   </Link>
                 </div>
               </div>
