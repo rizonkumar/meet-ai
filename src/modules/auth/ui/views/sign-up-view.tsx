@@ -186,6 +186,18 @@ export const SignUpView = () => {
                     type="button"
                     className="w-full"
                     disabled={isLoading}
+                    onClick={() =>
+                      authClient.signIn.social(
+                        {
+                          provider: "google",
+                        },
+                        {
+                          onError: ({ error }) => {
+                            setError(error.message);
+                          },
+                        }
+                      )
+                    }
                   >
                     {isLoading ? (
                       <Loader2 className="size-4 animate-spin" />
@@ -198,6 +210,18 @@ export const SignUpView = () => {
                     type="button"
                     className="w-full"
                     disabled={isLoading}
+                    onClick={() =>
+                      authClient.signIn.social(
+                        {
+                          provider: "github",
+                        },
+                        {
+                          onError: ({ error }) => {
+                            setError(error.message);
+                          },
+                        }
+                      )
+                    }
                   >
                     {isLoading ? (
                       <Loader2 className="size-4 animate-spin" />
