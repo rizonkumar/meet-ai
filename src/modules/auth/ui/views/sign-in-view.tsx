@@ -64,23 +64,6 @@ export const SignInView = () => {
     );
   };
 
-  const handleSocialLogin = async (provider: SocialLoginType) => {
-    if (!provider) return;
-
-    setError(null);
-    setSocialLoginLoading(provider);
-
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-      console.log(`Signing in with ${provider}...`);
-      router.push("/");
-    } catch (err: any) {
-      setError(err.message || `Failed to sign in with ${provider}`);
-    } finally {
-      setSocialLoginLoading(null);
-    }
-  };
-
   return (
     <div className="flex flex-col gap-6">
       <Card className="overflow-hidden p-0">
@@ -160,7 +143,18 @@ export const SignInView = () => {
                     variant="outline"
                     type="button"
                     className="w-full"
-                    onClick={() => handleSocialLogin("google")}
+                    onClick={() =>
+                      authClient.signIn.social(
+                        {
+                          provider: "google",
+                        },
+                        {
+                          onError: ({ error }) => {
+                            setError(error.message);
+                          },
+                        }
+                      )
+                    }
                     disabled={
                       isEmailSignInLoading || socialLoginLoading !== null
                     }
@@ -175,7 +169,18 @@ export const SignInView = () => {
                     variant="outline"
                     type="button"
                     className="w-full"
-                    onClick={() => handleSocialLogin("github")}
+                    onClick={() =>
+                      authClient.signIn.social(
+                        {
+                          provider: "github",
+                        },
+                        {
+                          onError: ({ error }) => {
+                            setError(error.message);
+                          },
+                        }
+                      )
+                    }
                     disabled={
                       isEmailSignInLoading || socialLoginLoading !== null
                     }
