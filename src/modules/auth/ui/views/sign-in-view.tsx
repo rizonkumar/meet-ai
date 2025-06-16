@@ -64,6 +64,21 @@ export const SignInView = () => {
     );
   };
 
+  const handleSocialSignIn = (provider: "google" | "github") => {
+    setSocialLoginLoading(provider);
+    authClient.signIn.social(
+      {
+        provider: provider,
+      },
+      {
+        onError: ({ error }) => {
+          setError(error.message);
+          setSocialLoginLoading(null);
+        },
+      }
+    );
+  };
+
   return (
     <div className="flex flex-col gap-6">
       <Card className="overflow-hidden p-0">
@@ -143,18 +158,7 @@ export const SignInView = () => {
                     variant="outline"
                     type="button"
                     className="w-full"
-                    onClick={() =>
-                      authClient.signIn.social(
-                        {
-                          provider: "google",
-                        },
-                        {
-                          onError: ({ error }) => {
-                            setError(error.message);
-                          },
-                        }
-                      )
-                    }
+                    onClick={() => handleSocialSignIn("google")}
                     disabled={
                       isEmailSignInLoading || socialLoginLoading !== null
                     }
@@ -169,18 +173,7 @@ export const SignInView = () => {
                     variant="outline"
                     type="button"
                     className="w-full"
-                    onClick={() =>
-                      authClient.signIn.social(
-                        {
-                          provider: "github",
-                        },
-                        {
-                          onError: ({ error }) => {
-                            setError(error.message);
-                          },
-                        }
-                      )
-                    }
+                    onClick={() => handleSocialSignIn("github")}
                     disabled={
                       isEmailSignInLoading || socialLoginLoading !== null
                     }
