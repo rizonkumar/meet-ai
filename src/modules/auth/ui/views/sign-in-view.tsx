@@ -19,6 +19,7 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { useState } from "react";
 import { authClient } from "@/lib/auth-client";
+import { useRouter } from "next/navigation";
 
 const formSchema = z.object({
   email: z.string().email(),
@@ -32,6 +33,7 @@ export const SignInView = () => {
   const [isEmailSignInLoading, setIsEmailSignInLoading] = useState(false);
   const [socialLoginLoading, setSocialLoginLoading] =
     useState<SocialLoginType>(null);
+  const router = useRouter();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -53,6 +55,7 @@ export const SignInView = () => {
       {
         onSuccess: () => {
           setIsEmailSignInLoading(false);
+          router.push("/");
         },
         onError: ({ error }) => {
           setError(error.message);

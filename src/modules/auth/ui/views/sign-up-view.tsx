@@ -19,6 +19,7 @@ import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { useState } from "react";
 import { authClient } from "@/lib/auth-client";
+import { useRouter } from "next/navigation";
 
 const formSchema = z
   .object({
@@ -37,6 +38,7 @@ const formSchema = z
 type SocialLoginType = "google" | "github" | null;
 
 export const SignUpView = () => {
+  const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [isEmailSignUpLoading, setIsEmailSignUpLoading] = useState(false);
   const [socialLoginLoading, setSocialLoginLoading] =
@@ -65,6 +67,7 @@ export const SignUpView = () => {
       {
         onSuccess: () => {
           setIsEmailSignUpLoading(false);
+          router.push("/");
         },
         onError: ({ error }) => {
           setError(error.message);
