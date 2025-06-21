@@ -4,6 +4,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Card, CardContent } from "@/components/ui/card";
 import { useForm } from "react-hook-form";
+import { FaGithub, FaGoogle } from "react-icons/fa";
 import {
   Form,
   FormControl,
@@ -222,7 +223,7 @@ export const SignUpView = () => {
                     {socialLoginLoading === "google" ? (
                       <Loader2 className="size-4 animate-spin" />
                     ) : (
-                      "Google"
+                      <FaGoogle />
                     )}
                   </Button>
                   <Button
@@ -237,7 +238,7 @@ export const SignUpView = () => {
                     {socialLoginLoading === "github" ? (
                       <Loader2 className="size-4 animate-spin" />
                     ) : (
-                      "GitHub"
+                      <FaGithub />
                     )}
                   </Button>
                 </div>
