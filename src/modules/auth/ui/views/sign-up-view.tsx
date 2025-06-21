@@ -4,6 +4,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Card, CardContent } from "@/components/ui/card";
 import { useForm } from "react-hook-form";
+import { FaGithub, FaGoogle } from "react-icons/fa";
 import {
   Form,
   FormControl,
@@ -35,10 +36,14 @@ const formSchema = z
     path: ["confirmPassword"],
   });
 
+type SocialLoginType = "google" | "github" | null;
+
 export const SignUpView = () => {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isEmailSignUpLoading, setIsEmailSignUpLoading] = useState(false);
+  const [socialLoginLoading, setSocialLoginLoading] =
+    useState<SocialLoginType>(null);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -52,21 +57,42 @@ export const SignUpView = () => {
 
   const onSubmit = (data: z.infer<typeof formSchema>) => {
     setError(null);
-    setIsLoading(true);
+    setIsEmailSignUpLoading(true);
     authClient.signUp.email(
       {
         name: data.name,
         email: data.email,
         password: data.password,
+        callbackURL: "/",
       },
       {
         onSuccess: () => {
-          setIsLoading(false);
+          setIsEmailSignUpLoading(false);
           router.push("/");
         },
         onError: ({ error }) => {
           setError(error.message);
-          setIsLoading(false);
+          setIsEmailSignUpLoading(false);
+        },
+      }
+    );
+  };
+
+  const handleSocialSignIn = (provider: "google" | "github") => {
+    setError(null);
+    setSocialLoginLoading(provider);
+    authClient.signIn.social(
+      {
+        provider: provider,
+        callbackURL: "/",
+      },
+      {
+        onSuccess: () => {
+          setSocialLoginLoading(null);
+        },
+        onError: ({ error }) => {
+          setError(error.message);
+          setSocialLoginLoading(null);
         },
       }
     );
@@ -168,8 +194,12 @@ export const SignUpView = () => {
                     <AlertDescription>{error}</AlertDescription>
                   </Alert>
                 )}
-                <Button type="submit" className="w-full" disabled={isLoading}>
-                  {isLoading ? (
+                <Button
+                  type="submit"
+                  className="w-full"
+                  disabled={isEmailSignUpLoading || socialLoginLoading !== null}
+                >
+                  {isEmailSignUpLoading ? (
                     <Loader2 className="size-4 animate-spin" />
                   ) : (
                     "Sign up"
@@ -185,24 +215,30 @@ export const SignUpView = () => {
                     variant="outline"
                     type="button"
                     className="w-full"
-                    disabled={isLoading}
+                    disabled={
+                      isEmailSignUpLoading || socialLoginLoading !== null
+                    }
+                    onClick={() => handleSocialSignIn("google")}
                   >
-                    {isLoading ? (
+                    {socialLoginLoading === "google" ? (
                       <Loader2 className="size-4 animate-spin" />
                     ) : (
-                      "Google"
+                      <FaGoogle />
                     )}
                   </Button>
                   <Button
                     variant="outline"
                     type="button"
                     className="w-full"
-                    disabled={isLoading}
+                    disabled={
+                      isEmailSignUpLoading || socialLoginLoading !== null
+                    }
+                    onClick={() => handleSocialSignIn("github")}
                   >
-                    {isLoading ? (
+                    {socialLoginLoading === "github" ? (
                       <Loader2 className="size-4 animate-spin" />
                     ) : (
-                      "GitHub"
+                      <FaGithub />
                     )}
                   </Button>
                 </div>
@@ -212,7 +248,7 @@ export const SignUpView = () => {
                     href="/sign-in"
                     className="underline underline-offset-4"
                   >
-                    Sign up
+                    Sign in
                   </Link>
                 </div>
               </div>

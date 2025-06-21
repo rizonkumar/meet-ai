@@ -4,6 +4,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Card, CardContent } from "@/components/ui/card";
 import { useForm } from "react-hook-form";
+import { FaGithub, FaGoogle } from "react-icons/fa";
 import {
   Form,
   FormControl,
@@ -29,11 +30,11 @@ const formSchema = z.object({
 type SocialLoginType = "google" | "github" | null;
 
 export const SignInView = () => {
-  const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [isEmailSignInLoading, setIsEmailSignInLoading] = useState(false);
   const [socialLoginLoading, setSocialLoginLoading] =
     useState<SocialLoginType>(null);
+  const router = useRouter();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -50,6 +51,7 @@ export const SignInView = () => {
       {
         email: data.email,
         password: data.password,
+        callbackURL: "/",
       },
       {
         onSuccess: () => {
@@ -64,21 +66,23 @@ export const SignInView = () => {
     );
   };
 
-  const handleSocialLogin = async (provider: SocialLoginType) => {
-    if (!provider) return;
-
-    setError(null);
+  const handleSocialSignIn = (provider: "google" | "github") => {
     setSocialLoginLoading(provider);
-
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-      console.log(`Signing in with ${provider}...`);
-      router.push("/");
-    } catch (err: any) {
-      setError(err.message || `Failed to sign in with ${provider}`);
-    } finally {
-      setSocialLoginLoading(null);
-    }
+    authClient.signIn.social(
+      {
+        provider: provider,
+        callbackURL: "/",
+      },
+      {
+        onSuccess: () => {
+          setSocialLoginLoading(null);
+        },
+        onError: ({ error }) => {
+          setError(error.message);
+          setSocialLoginLoading(null);
+        },
+      }
+    );
   };
 
   return (
@@ -160,7 +164,7 @@ export const SignInView = () => {
                     variant="outline"
                     type="button"
                     className="w-full"
-                    onClick={() => handleSocialLogin("google")}
+                    onClick={() => handleSocialSignIn("google")}
                     disabled={
                       isEmailSignInLoading || socialLoginLoading !== null
                     }
@@ -168,14 +172,14 @@ export const SignInView = () => {
                     {socialLoginLoading === "google" ? (
                       <Loader2 className="size-4 animate-spin" />
                     ) : (
-                      "Google"
+                      <FaGoogle />
                     )}
                   </Button>
                   <Button
                     variant="outline"
                     type="button"
                     className="w-full"
-                    onClick={() => handleSocialLogin("github")}
+                    onClick={() => handleSocialSignIn("github")}
                     disabled={
                       isEmailSignInLoading || socialLoginLoading !== null
                     }
@@ -183,7 +187,7 @@ export const SignInView = () => {
                     {socialLoginLoading === "github" ? (
                       <Loader2 className="size-4 animate-spin" />
                     ) : (
-                      "GitHub"
+                      <FaGithub />
                     )}
                   </Button>
                 </div>
